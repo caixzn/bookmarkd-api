@@ -1,0 +1,9 @@
+quarkus:
+  rest:
+    jackson:
+      optimization:
+        enable-reflection-free-serializers: true
+    path: /api
+  rest-client:
+    open-library-api:
+      url: https://openlibrary.org
