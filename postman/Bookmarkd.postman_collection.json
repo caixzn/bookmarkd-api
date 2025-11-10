@@ -1,0 +1,383 @@
+{
+  "info": {
+    "name": "Bookmarkd API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for exercising the Bookmarkd API."
+  },
+  "item": [
+    {
+      "name": "Search Books",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/books?q=harry+potter&page=1&limit=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "books"
+          ],
+          "query": [
+            {
+              "key": "q",
+              "value": "harry potter"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Book By Key",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/books/key?key=/works/OL82563W",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "books",
+            "key"
+          ],
+          "query": [
+            {
+              "key": "key",
+              "value": "/works/OL82563W"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"alice\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "List Users",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get User By Id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/{{userId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "{{userId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update User",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"alice_renamed\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/{{userId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "{{userId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Log Entry",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"bookId\": {{bookId}},\n  \"userId\": {{userId}},\n  \"action\": \"started_reading\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/logs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "logs"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Log",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"bookId\": {{bookId}},\n  \"action\": \"finished_reading\",\n  \"timestamp\": \"2024-01-01T12:00:00\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/logs/{{logId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "logs",
+            "{{logId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Log",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/logs/{{logId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "logs",
+            "{{logId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "List Logs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/logs?bookId={{bookId}}&userId={{userId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "logs"
+          ],
+          "query": [
+            {
+              "key": "bookId",
+              "value": "{{bookId}}"
+            },
+            {
+              "key": "userId",
+              "value": "{{userId}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Review",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"bookId\": {{bookId}},\n  \"authorId\": {{userId}},\n  \"rating\": \"four_stars\",\n  \"content\": \"Loved this book!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/reviews",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reviews"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "List Reviews",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reviews?bookId={{bookId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reviews"
+          ],
+          "query": [
+            {
+              "key": "bookId",
+              "value": "{{bookId}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Like Review",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": {{userId}}\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/reviews/{{reviewId}}/likes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reviews",
+            "{{reviewId}}",
+            "likes"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Unlike Review",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reviews/{{reviewId}}/likes/{{userId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reviews",
+            "{{reviewId}}",
+            "likes",
+            "{{userId}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "userId",
+      "value": "1"
+    },
+    {
+      "key": "bookId",
+      "value": "1"
+    },
+    {
+      "key": "reviewId",
+      "value": "1"
+    },
+    {
+      "key": "logId",
+      "value": "1"
+    }
+  ]
+}
