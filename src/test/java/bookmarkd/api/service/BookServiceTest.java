@@ -69,4 +69,39 @@ class BookServiceTest {
         assertNotNull(persisted);
         assertEquals("Another Title", persisted.title);
     }
+
+    @Test
+    @Transactional
+    void listPersistedBooks_returnsSortedResults() {
+        TestDataUtil.clearDatabase();
+
+        TestDataUtil.persistBook("Beta Title", "Author Two", "2001");
+        TestDataUtil.persistBook("Alpha Title", "Author One", "1999");
+
+        List<Book> books = bookService.listPersistedBooks(null, null);
+
+        assertEquals(2, books.size());
+        assertEquals("Alpha Title", books.get(0).title);
+        assertEquals("Beta Title", books.get(1).title);
+    }
+
+    @Test
+    @Transactional
+    void listPersistedBooks_honorsPagination() {
+        TestDataUtil.clearDatabase();
+
+        TestDataUtil.persistBook("Alpha Title", "Author One", "1999");
+        TestDataUtil.persistBook("Beta Title", "Author Two", "2001");
+        TestDataUtil.persistBook("Gamma Title", "Author Three", "2003");
+
+        List<Book> firstPage = bookService.listPersistedBooks(1, 2);
+        List<Book> secondPage = bookService.listPersistedBooks(2, 2);
+
+        assertEquals(2, firstPage.size());
+        assertEquals("Alpha Title", firstPage.get(0).title);
+        assertEquals("Beta Title", firstPage.get(1).title);
+
+        assertEquals(1, secondPage.size());
+        assertEquals("Gamma Title", secondPage.get(0).title);
+    }
 }

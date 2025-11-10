@@ -49,9 +49,28 @@ class UserServiceTest {
         userService.createUser("alicia");
         userService.createUser("charlie");
 
-        List<User> matches = userService.listUsers("lic");
+        List<User> matches = userService.listUsers("lic", null, null);
 
         assertEquals(2, matches.size());
+    }
+
+    @Test
+    @Transactional
+    void listUsers_paginatesAlphabetically() {
+        TestDataUtil.clearDatabase();
+        userService.createUser("anna");
+        userService.createUser("bella");
+        userService.createUser("claire");
+
+        List<User> firstPage = userService.listUsers(null, 1, 2);
+        List<User> secondPage = userService.listUsers(null, 2, 2);
+
+        assertEquals(2, firstPage.size());
+        assertEquals("anna", firstPage.get(0).username);
+        assertEquals("bella", firstPage.get(1).username);
+
+        assertEquals(1, secondPage.size());
+        assertEquals("claire", secondPage.get(0).username);
     }
 
     @Test

@@ -72,11 +72,29 @@ class ReviewServiceTest {
         reviewService.createReview(book.id, author.id, "five_stars", "Excellent", null);
         reviewService.createReview(otherBook.id, author.id, "five_stars", "Also excellent", null);
 
-        List<Review> results = reviewService.listReviews(book.id, null, "five_stars");
+        List<Review> results = reviewService.listReviews(book.id, null, "five_stars", null, null);
 
         assertEquals(1, results.size());
         assertEquals(Rating.FIVE_STARS, results.get(0).rating);
         assertEquals(book.id, results.get(0).book.id);
+    }
+
+    @Test
+    @Transactional
+    void listReviews_paginatesResults() {
+        TestDataUtil.clearDatabase();
+        var author = TestDataUtil.persistUser("author");
+        var book = TestDataUtil.persistBook("Paged Book", "Author", "2022");
+
+        reviewService.createReview(book.id, author.id, "one_star", "Not great", null);
+        reviewService.createReview(book.id, author.id, "two_stars", "Okay", null);
+        reviewService.createReview(book.id, author.id, "three_stars", "Fine", null);
+
+        List<Review> firstPage = reviewService.listReviews(book.id, null, null, 1, 2);
+        List<Review> secondPage = reviewService.listReviews(book.id, null, null, 2, 2);
+
+        assertEquals(2, firstPage.size());
+        assertEquals(1, secondPage.size());
     }
 
     @Test

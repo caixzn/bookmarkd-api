@@ -41,8 +41,10 @@ public class ReviewResource {
     @GET
     public List<Review> listReviews(@QueryParam("bookId") Long bookId,
             @QueryParam("authorId") Long authorId,
-            @QueryParam("rating") String ratingValue) {
-        return reviewService.listReviews(bookId, authorId, ratingValue);
+            @QueryParam("rating") String ratingValue,
+            @QueryParam("page") Integer page,
+            @QueryParam("size") Integer size) {
+        return reviewService.listReviews(bookId, authorId, ratingValue, page, size);
     }
 
     @POST

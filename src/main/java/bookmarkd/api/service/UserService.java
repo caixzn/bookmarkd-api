@@ -4,12 +4,18 @@ import java.util.List;
 import java.util.Locale;
 
 import bookmarkd.api.entity.User;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 
 @ApplicationScoped
 public class UserService {
+
+    private static final int DEFAULT_PAGE_SIZE = 20;
+    private static final int MAX_PAGE_SIZE = 50;
 
 	public User createUser(String username) {
 		var sanitizedUsername = sanitizeUsername(username);
@@ -25,13 +31,15 @@ public class UserService {
 		return user;
 	}
 
-	public List<User> listUsers(String username) {
+	public List<User> listUsers(String username, Integer page, Integer size) {
+		PanacheQuery<User> query;
 		if (username == null || username.isBlank()) {
-			return User.listAll();
+			query = User.findAll(Sort.by("username"));
+		} else {
+			var normalized = "%" + username.trim().toLowerCase(Locale.ROOT) + "%";
+			query = User.find("LOWER(username) like ?1", Sort.by("username"), normalized);
 		}
-
-		var normalized = "%" + username.trim().toLowerCase(Locale.ROOT) + "%";
-		return User.find("LOWER(username) like ?1", normalized).list();
+		return query.page(resolvePage(page, size)).list();
 	}
 
 	public User getUser(Long id) {
@@ -64,5 +72,11 @@ public class UserService {
 			throw new BadRequestException("username is required");
 		}
 		return username.trim();
+	}
+
+	private Page resolvePage(Integer page, Integer size) {
+		int pageNumber = (page == null || page < 1) ? 1 : page;
+		int pageSize = (size == null || size < 1) ? DEFAULT_PAGE_SIZE : Math.min(size, MAX_PAGE_SIZE);
+		return Page.of(pageNumber - 1, pageSize);
 	}
 }

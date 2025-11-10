@@ -8,6 +8,8 @@ import bookmarkd.api.client.OpenLibraryClient;
 import bookmarkd.api.client.OpenLibraryClient.OpenLibraryDoc;
 import bookmarkd.api.entity.Book;
 import io.quarkus.cache.CacheResult;
+import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -15,6 +17,10 @@ import jakarta.ws.rs.NotFoundException;
 
 @ApplicationScoped
 public class BookService {
+
+    private static final int DEFAULT_PAGE_SIZE = 20;
+    private static final int MAX_PAGE_SIZE = 50;
+
     @Inject
     @RestClient
     OpenLibraryClient openLibraryClient;
@@ -78,5 +84,18 @@ public class BookService {
         if (!persistent.isPersistent()) {
             persistent.persist();
         }
+    }
+
+    @Transactional(Transactional.TxType.SUPPORTS)
+    public List<Book> listPersistedBooks(Integer page, Integer size) {
+        return Book.findAll(Sort.by("title"))
+                .page(resolvePage(page, size))
+                .list();
+    }
+
+    private Page resolvePage(Integer page, Integer size) {
+        int pageNumber = (page == null || page < 1) ? 1 : page;
+        int pageSize = (size == null || size < 1) ? DEFAULT_PAGE_SIZE : Math.min(size, MAX_PAGE_SIZE);
+        return Page.of(pageNumber - 1, pageSize);
     }
 }

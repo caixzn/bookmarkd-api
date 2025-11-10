@@ -41,8 +41,10 @@ public class LogResource {
     @GET
     public List<Log> listLogs(@QueryParam("bookId") Long bookId,
             @QueryParam("userId") Long userId,
-            @QueryParam("action") String actionValue) {
-        return logService.listLogs(bookId, userId, actionValue);
+            @QueryParam("action") String actionValue,
+            @QueryParam("page") Integer page,
+            @QueryParam("size") Integer size) {
+        return logService.listLogs(bookId, userId, actionValue, page, size);
     }
 
     @PUT

@@ -10,6 +10,8 @@ import bookmarkd.api.entity.Book;
 import bookmarkd.api.entity.Log;
 import bookmarkd.api.entity.Log.Action;
 import bookmarkd.api.entity.User;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Page;
 import jakarta.transaction.Transactional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.BadRequestException;
@@ -17,6 +19,9 @@ import jakarta.ws.rs.NotFoundException;
 
 @ApplicationScoped
 public class LogService {
+
+	private static final int DEFAULT_PAGE_SIZE = 20;
+	private static final int MAX_PAGE_SIZE = 50;
 
 	public Log createLog(Long bookId, Long userId, String actionValue, LocalDateTime timestamp) {
 		if (bookId == null) {
@@ -51,7 +56,7 @@ public class LogService {
 		return log;
 	}
 
-	public List<Log> listLogs(Long bookId, Long userId, String actionValue) {
+	public List<Log> listLogs(Long bookId, Long userId, String actionValue, Integer page, Integer size) {
 		// Assemble a flexible JPQL query based on the provided filters.
 		var query = new StringBuilder();
 		Map<String, Object> parameters = new HashMap<>();
@@ -70,11 +75,14 @@ public class LogService {
 			parameters.put("action", action);
 		}
 
+		PanacheQuery<Log> panacheQuery;
 		if (query.length() == 0) {
-			return Log.listAll();
+			panacheQuery = Log.findAll();
+		} else {
+			panacheQuery = Log.find(query.toString(), parameters);
 		}
 
-		return Log.find(query.toString(), parameters).list();
+		return panacheQuery.page(resolvePage(page, size)).list();
 	}
 
 	@Transactional
@@ -142,5 +150,11 @@ public class LogService {
 		} catch (IllegalArgumentException ex) {
 			throw new BadRequestException("Unknown action: " + actionValue);
 		}
+	}
+
+	private Page resolvePage(Integer page, Integer size) {
+		int pageNumber = (page == null || page < 1) ? 1 : page;
+		int pageSize = (size == null || size < 1) ? DEFAULT_PAGE_SIZE : Math.min(size, MAX_PAGE_SIZE);
+		return Page.of(pageNumber - 1, pageSize);
 	}
 }

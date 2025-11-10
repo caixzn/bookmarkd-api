@@ -48,7 +48,7 @@ class LogServiceTest {
         logService.createLog(book.id, user.id, "started_reading", null);
         logService.createLog(book.id, user.id, "finished_reading", null);
 
-        List<Log> finished = logService.listLogs(book.id, user.id, "finished_reading");
+        List<Log> finished = logService.listLogs(book.id, user.id, "finished_reading", null, null);
 
         assertEquals(1, finished.size());
         assertEquals(Action.FINISHED_READING, finished.get(0).action);
@@ -93,5 +93,23 @@ class LogServiceTest {
         logService.deleteLog(log.id);
 
         assertNull(Log.findById(log.id));
+    }
+
+    @Test
+    @Transactional
+    void listLogs_paginatesResults() {
+        TestDataUtil.clearDatabase();
+        var user = TestDataUtil.persistUser("reader");
+        var book = TestDataUtil.persistBook("Paged", "Author", "2024");
+
+        logService.createLog(book.id, user.id, "started_reading", null);
+        logService.createLog(book.id, user.id, "finished_reading", null);
+        logService.createLog(book.id, user.id, "started_reading", null);
+
+        List<Log> firstPage = logService.listLogs(book.id, user.id, null, 1, 2);
+        List<Log> secondPage = logService.listLogs(book.id, user.id, null, 2, 2);
+
+        assertEquals(2, firstPage.size());
+        assertEquals(1, secondPage.size());
     }
 }

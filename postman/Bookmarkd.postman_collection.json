@@ -63,6 +63,35 @@
       "response": []
     },
     {
+      "name": "List Persisted Books",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/books/persisted?page=1&size=20",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "books",
+            "persisted"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "size",
+              "value": "20"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "Create User",
       "request": {
         "method": "POST",
@@ -95,13 +124,23 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/users",
+          "raw": "{{baseUrl}}/api/users?page=1&size=20",
           "host": [
             "{{baseUrl}}"
           ],
           "path": [
             "api",
             "users"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "size",
+              "value": "20"
+            }
           ]
         }
       },
@@ -234,7 +273,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/logs?bookId={{bookId}}&userId={{userId}}",
+          "raw": "{{baseUrl}}/api/logs?bookId={{bookId}}&userId={{userId}}&page=1&size=20",
           "host": [
             "{{baseUrl}}"
           ],
@@ -250,6 +289,14 @@
             {
               "key": "userId",
               "value": "{{userId}}"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "size",
+              "value": "20"
             }
           ]
         }
@@ -289,7 +336,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/reviews?bookId={{bookId}}",
+          "raw": "{{baseUrl}}/api/reviews?bookId={{bookId}}&page=1&size=20",
           "host": [
             "{{baseUrl}}"
           ],
@@ -301,6 +348,14 @@
             {
               "key": "bookId",
               "value": "{{bookId}}"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "size",
+              "value": "20"
             }
           ]
         }

@@ -37,8 +37,10 @@ public class UserResource {
     }
 
     @GET
-    public List<User> listUsers(@QueryParam("username") String username) {
-        return userService.listUsers(username);
+    public List<User> listUsers(@QueryParam("username") String username,
+            @QueryParam("page") Integer page,
+            @QueryParam("size") Integer size) {
+        return userService.listUsers(username, page, size);
     }
 
     @GET

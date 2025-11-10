@@ -10,6 +10,8 @@ import bookmarkd.api.entity.Book;
 import bookmarkd.api.entity.Review;
 import bookmarkd.api.entity.Review.Rating;
 import bookmarkd.api.entity.User;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
@@ -17,6 +19,9 @@ import jakarta.ws.rs.NotFoundException;
 
 @ApplicationScoped
 public class ReviewService {
+
+	private static final int DEFAULT_PAGE_SIZE = 20;
+	private static final int MAX_PAGE_SIZE = 50;
 
 	public Review createReview(Long bookId, Long authorId, String ratingValue, String content, LocalDateTime createdAt) {
 		if (bookId == null) {
@@ -52,7 +57,7 @@ public class ReviewService {
 		return review;
 	}
 
-	public List<Review> listReviews(Long bookId, Long authorId, String ratingValue) {
+	public List<Review> listReviews(Long bookId, Long authorId, String ratingValue, Integer page, Integer size) {
 		// Assemble a flexible JPQL query based on the provided filters.
 		var query = new StringBuilder();
 		Map<String, Object> parameters = new HashMap<>();
@@ -71,11 +76,14 @@ public class ReviewService {
 			parameters.put("rating", rating);
 		}
 
+		PanacheQuery<Review> panacheQuery;
 		if (query.length() == 0) {
-			return Review.listAll();
+			panacheQuery = Review.findAll();
+		} else {
+			panacheQuery = Review.find(query.toString(), parameters);
 		}
 
-		return Review.find(query.toString(), parameters).list();
+		return panacheQuery.page(resolvePage(page, size)).list();
 	}
 
 	@Transactional
@@ -145,5 +153,11 @@ public class ReviewService {
 		} catch (IllegalArgumentException ex) {
 			throw new BadRequestException("Unknown rating: " + ratingValue);
 		}
+	}
+
+	private Page resolvePage(Integer page, Integer size) {
+		int pageNumber = (page == null || page < 1) ? 1 : page;
+		int pageSize = (size == null || size < 1) ? DEFAULT_PAGE_SIZE : Math.min(size, MAX_PAGE_SIZE);
+		return Page.of(pageNumber - 1, pageSize);
 	}
 }
