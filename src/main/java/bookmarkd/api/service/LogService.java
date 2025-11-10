@@ -10,6 +10,7 @@ import bookmarkd.api.entity.Book;
 import bookmarkd.api.entity.Log;
 import bookmarkd.api.entity.Log.Action;
 import bookmarkd.api.entity.User;
+import jakarta.transaction.Transactional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
@@ -74,6 +75,58 @@ public class LogService {
 		}
 
 		return Log.find(query.toString(), parameters).list();
+	}
+
+	@Transactional
+	public Log updateLog(Long logId, Long bookId, Long userId, String actionValue, LocalDateTime timestamp) {
+		if (logId == null) {
+			throw new BadRequestException("logId is required");
+		}
+
+		Log log = Log.findById(logId);
+		if (log == null) {
+			throw new NotFoundException("Log not found for id: " + logId);
+		}
+
+		if (bookId != null) {
+			Book book = Book.findById(bookId);
+			if (book == null) {
+				throw new NotFoundException("Book not found for id: " + bookId);
+			}
+			log.book = book;
+		}
+
+		if (userId != null) {
+			User user = User.findById(userId);
+			if (user == null) {
+				throw new NotFoundException("User not found for id: " + userId);
+			}
+			log.user = user;
+		}
+
+		if (actionValue != null && !actionValue.isBlank()) {
+			log.action = parseAction(actionValue);
+		}
+
+		if (timestamp != null) {
+			log.timestamp = timestamp;
+		}
+
+		return log;
+	}
+
+	@Transactional
+	public void deleteLog(Long logId) {
+		if (logId == null) {
+			throw new BadRequestException("logId is required");
+		}
+
+		Log log = Log.findById(logId);
+		if (log == null) {
+			throw new NotFoundException("Log not found for id: " + logId);
+		}
+
+		log.delete();
 	}
 
 	private void appendPredicate(StringBuilder query, String predicate) {
