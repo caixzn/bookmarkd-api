@@ -2,7 +2,7 @@ package bookmarkd.api.resource;
 
 import java.util.List;
 
-import bookmarkd.api.entity.User;
+import bookmarkd.api.resource.dto.UserDto;
 import bookmarkd.api.service.UserService;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -32,12 +32,12 @@ public class UserResource {
         if (request == null) {
             throw new BadRequestException("Request body is required");
         }
-        User user = userService.createUser(request.username());
+        UserDto user = userService.createUser(request.username());
         return Response.status(Response.Status.CREATED).entity(user).build();
     }
 
     @GET
-    public List<User> listUsers(@QueryParam("username") String username,
+    public List<UserDto> listUsers(@QueryParam("username") String username,
             @QueryParam("page") Integer page,
             @QueryParam("size") Integer size) {
         return userService.listUsers(username, page, size);
@@ -45,14 +45,14 @@ public class UserResource {
 
     @GET
     @Path("/{id}")
-    public User getUser(@PathParam("id") Long id) {
+    public UserDto getUser(@PathParam("id") Long id) {
         return userService.getUser(id);
     }
 
     @PUT
     @Path("/{id}")
     @Transactional
-    public User updateUser(@PathParam("id") Long id, UpdateUserRequest request) {
+    public UserDto updateUser(@PathParam("id") Long id, UpdateUserRequest request) {
         if (request == null) {
             throw new BadRequestException("Request body is required");
         }

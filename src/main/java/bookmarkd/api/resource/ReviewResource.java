@@ -3,7 +3,7 @@ package bookmarkd.api.resource;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import bookmarkd.api.entity.Review;
+import bookmarkd.api.resource.dto.ReviewDto;
 import bookmarkd.api.service.ReviewService;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -33,13 +33,13 @@ public class ReviewResource {
         if (request == null) {
             throw new BadRequestException("Request body is required");
         }
-        Review review = reviewService.createReview(request.bookId(), request.authorId(), request.rating(),
+        ReviewDto review = reviewService.createReview(request.bookId(), request.authorId(), request.rating(),
                 request.content(), request.createdAt());
         return Response.status(Response.Status.CREATED).entity(review).build();
     }
 
     @GET
-    public List<Review> listReviews(@QueryParam("bookId") Long bookId,
+    public List<ReviewDto> listReviews(@QueryParam("bookId") Long bookId,
             @QueryParam("authorId") Long authorId,
             @QueryParam("rating") String ratingValue,
             @QueryParam("page") Integer page,
@@ -50,7 +50,7 @@ public class ReviewResource {
     @POST
     @Path("/{id}/likes")
     @Transactional
-    public Review likeReview(@PathParam("id") Long reviewId, LikeReviewRequest request) {
+    public ReviewDto likeReview(@PathParam("id") Long reviewId, LikeReviewRequest request) {
         if (request == null) {
             throw new BadRequestException("Request body is required");
         }
@@ -63,7 +63,7 @@ public class ReviewResource {
     @DELETE
     @Path("/{id}/likes/{userId}")
     @Transactional
-    public Review unlikeReview(@PathParam("id") Long reviewId, @PathParam("userId") Long userId) {
+    public ReviewDto unlikeReview(@PathParam("id") Long reviewId, @PathParam("userId") Long userId) {
         return reviewService.unlikeReview(reviewId, userId);
     }
 

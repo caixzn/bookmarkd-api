@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 
-import bookmarkd.api.entity.User;
+import bookmarkd.api.resource.dto.UserDto;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
@@ -26,10 +26,10 @@ class UserServiceTest {
     void createUser_persistsTrimmedUsername() {
         TestDataUtil.clearDatabase();
 
-        User created = userService.createUser("  alice  ");
+        UserDto created = userService.createUser("  alice  ");
 
-        assertNotNull(created.id);
-        assertEquals("alice", created.username);
+        assertNotNull(created.id());
+        assertEquals("alice", created.username());
     }
 
     @Test
@@ -49,7 +49,7 @@ class UserServiceTest {
         userService.createUser("alicia");
         userService.createUser("charlie");
 
-        List<User> matches = userService.listUsers("lic", null, null);
+        List<UserDto> matches = userService.listUsers("lic", null, null);
 
         assertEquals(2, matches.size());
     }
@@ -62,27 +62,27 @@ class UserServiceTest {
         userService.createUser("bella");
         userService.createUser("claire");
 
-        List<User> firstPage = userService.listUsers(null, 1, 2);
-        List<User> secondPage = userService.listUsers(null, 2, 2);
+        List<UserDto> firstPage = userService.listUsers(null, 1, 2);
+        List<UserDto> secondPage = userService.listUsers(null, 2, 2);
 
         assertEquals(2, firstPage.size());
-        assertEquals("anna", firstPage.get(0).username);
-        assertEquals("bella", firstPage.get(1).username);
+        assertEquals("anna", firstPage.get(0).username());
+        assertEquals("bella", firstPage.get(1).username());
 
         assertEquals(1, secondPage.size());
-        assertEquals("claire", secondPage.get(0).username);
+        assertEquals("claire", secondPage.get(0).username());
     }
 
     @Test
     @Transactional
     void updateUser_changesUsernameAndValidatesDuplicates() {
         TestDataUtil.clearDatabase();
-        User bob = userService.createUser("bob");
+        UserDto bob = userService.createUser("bob");
         userService.createUser("carol");
 
-        User updated = userService.updateUser(bob.id, "bobby");
+        UserDto updated = userService.updateUser(bob.id(), "bobby");
 
-        assertEquals("bobby", updated.username);
-        assertThrows(BadRequestException.class, () -> userService.updateUser(updated.id, "carol"));
+        assertEquals("bobby", updated.username());
+        assertThrows(BadRequestException.class, () -> userService.updateUser(updated.id(), "carol"));
     }
 }

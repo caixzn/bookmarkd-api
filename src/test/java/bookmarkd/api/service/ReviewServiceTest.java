@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import java.util.List;
 
 import bookmarkd.api.entity.Review;
-import bookmarkd.api.entity.Review.Rating;
+import bookmarkd.api.resource.dto.ReviewDto;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
@@ -32,11 +32,12 @@ class ReviewServiceTest {
         var author = TestDataUtil.persistUser("author");
         var book = TestDataUtil.persistBook("Review Book", "Author", "2019");
 
-        Review review = reviewService.createReview(book.id, author.id, "three_stars", "Solid read", null);
+        ReviewDto review = reviewService.createReview(book.id, author.id, "three_stars", "Solid read", null);
 
-        assertNotNull(review.id);
-        assertEquals(Rating.THREE_STARS, review.rating);
-        assertNotNull(review.createdAt);
+        assertNotNull(review.id());
+        assertEquals("three_stars", review.rating());
+        assertNotNull(review.createdAt());
+        assertNotNull(Review.findById(review.id()));
     }
 
     @Test
@@ -72,11 +73,11 @@ class ReviewServiceTest {
         reviewService.createReview(book.id, author.id, "five_stars", "Excellent", null);
         reviewService.createReview(otherBook.id, author.id, "five_stars", "Also excellent", null);
 
-        List<Review> results = reviewService.listReviews(book.id, null, "five_stars", null, null);
+        List<ReviewDto> results = reviewService.listReviews(book.id, null, "five_stars", null, null);
 
         assertEquals(1, results.size());
-        assertEquals(Rating.FIVE_STARS, results.get(0).rating);
-        assertEquals(book.id, results.get(0).book.id);
+        assertEquals("five_stars", results.get(0).rating());
+        assertEquals(book.id, results.get(0).book().id());
     }
 
     @Test
@@ -90,8 +91,8 @@ class ReviewServiceTest {
         reviewService.createReview(book.id, author.id, "two_stars", "Okay", null);
         reviewService.createReview(book.id, author.id, "three_stars", "Fine", null);
 
-        List<Review> firstPage = reviewService.listReviews(book.id, null, null, 1, 2);
-        List<Review> secondPage = reviewService.listReviews(book.id, null, null, 2, 2);
+        List<ReviewDto> firstPage = reviewService.listReviews(book.id, null, null, 1, 2);
+        List<ReviewDto> secondPage = reviewService.listReviews(book.id, null, null, 2, 2);
 
         assertEquals(2, firstPage.size());
         assertEquals(1, secondPage.size());
@@ -105,14 +106,14 @@ class ReviewServiceTest {
         var liker = TestDataUtil.persistUser("fan");
         var book = TestDataUtil.persistBook("Liked Book", "Author", "2020");
 
-        Review review = reviewService.createReview(book.id, author.id, "five_stars", "Great book", null);
+        ReviewDto review = reviewService.createReview(book.id, author.id, "five_stars", "Great book", null);
 
-        Review liked = reviewService.likeReview(review.id, liker.id);
-        assertEquals(1, liked.likedBy.size());
-        assertTrue(liked.likedBy.stream().anyMatch(user -> user.id.equals(liker.id)));
+        ReviewDto liked = reviewService.likeReview(review.id(), liker.id);
+        assertEquals(1, liked.likedBy().size());
+        assertTrue(liked.likedBy().stream().anyMatch(user -> user.id().equals(liker.id)));
 
-        Review likedAgain = reviewService.likeReview(review.id, liker.id);
-        assertEquals(1, likedAgain.likedBy.size());
+        ReviewDto likedAgain = reviewService.likeReview(review.id(), liker.id);
+        assertEquals(1, likedAgain.likedBy().size());
     }
 
     @Test
@@ -123,13 +124,13 @@ class ReviewServiceTest {
         var liker = TestDataUtil.persistUser("fan");
         var book = TestDataUtil.persistBook("Unliked Book", "Author", "2021");
 
-        Review review = reviewService.createReview(book.id, author.id, "four_stars", "Good", null);
-        reviewService.likeReview(review.id, liker.id);
+        ReviewDto review = reviewService.createReview(book.id, author.id, "four_stars", "Good", null);
+        reviewService.likeReview(review.id(), liker.id);
 
-        Review updated = reviewService.unlikeReview(review.id, liker.id);
-        assertTrue(updated.likedBy.stream().noneMatch(user -> user.id.equals(liker.id)));
+        ReviewDto updated = reviewService.unlikeReview(review.id(), liker.id);
+        assertTrue(updated.likedBy().stream().noneMatch(user -> user.id().equals(liker.id)));
 
-        Review idempotent = reviewService.unlikeReview(review.id, liker.id);
-        assertFalse(idempotent.likedBy.stream().anyMatch(user -> user.id.equals(liker.id)));
+        ReviewDto idempotent = reviewService.unlikeReview(review.id(), liker.id);
+        assertFalse(idempotent.likedBy().stream().anyMatch(user -> user.id().equals(liker.id)));
     }
 }

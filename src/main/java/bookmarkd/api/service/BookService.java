@@ -7,7 +7,9 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import bookmarkd.api.client.OpenLibraryClient;
 import bookmarkd.api.client.OpenLibraryClient.OpenLibraryDoc;
 import bookmarkd.api.entity.Book;
+import bookmarkd.api.resource.dto.BookDto;
 import io.quarkus.cache.CacheResult;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -87,10 +89,13 @@ public class BookService {
     }
 
     @Transactional(Transactional.TxType.SUPPORTS)
-    public List<Book> listPersistedBooks(Integer page, Integer size) {
-        return Book.findAll(Sort.by("title"))
-                .page(resolvePage(page, size))
-                .list();
+    public List<BookDto> listPersistedBooks(Integer page, Integer size) {
+        PanacheQuery<Book> query = Book.findAll(Sort.by("title"));
+        return query.page(resolvePage(page, size))
+                .list()
+                .stream()
+                .map(BookDto::from)
+                .toList();
     }
 
     private Page resolvePage(Integer page, Integer size) {

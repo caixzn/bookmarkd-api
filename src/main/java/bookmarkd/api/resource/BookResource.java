@@ -3,7 +3,7 @@ package bookmarkd.api.resource;
 import java.util.List;
 
 import bookmarkd.api.client.OpenLibraryClient.OpenLibraryDoc;
-import bookmarkd.api.entity.Book;
+import bookmarkd.api.resource.dto.BookDto;
 import bookmarkd.api.service.BookService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -30,8 +30,8 @@ public class BookResource {
 
     @GET
     @Path("/persisted")
-    public List<Book> listPersistedBooks(@QueryParam("page") Integer page,
-                                         @QueryParam("size") Integer size) {
+    public List<BookDto> listPersistedBooks(@QueryParam("page") Integer page,
+                                            @QueryParam("size") Integer size) {
         return bookService.listPersistedBooks(page, size);
     }
 }

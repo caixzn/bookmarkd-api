@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import bookmarkd.api.entity.Log;
-import bookmarkd.api.entity.Log.Action;
+import bookmarkd.api.resource.dto.LogDto;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
@@ -31,11 +31,12 @@ class LogServiceTest {
         var user = TestDataUtil.persistUser("reader");
         var book = TestDataUtil.persistBook("Test Book", "Author", "2020");
 
-        Log log = logService.createLog(book.id, user.id, "started_reading", null);
+        LogDto log = logService.createLog(book.id, user.id, "started_reading", null);
 
-        assertNotNull(log.id);
-        assertEquals(Action.STARTED_READING, log.action);
-        assertNotNull(log.timestamp);
+        assertNotNull(log.id());
+        assertEquals("started_reading", log.action());
+        assertNotNull(log.timestamp());
+        assertNotNull(Log.findById(log.id()));
     }
 
     @Test
@@ -48,10 +49,10 @@ class LogServiceTest {
         logService.createLog(book.id, user.id, "started_reading", null);
         logService.createLog(book.id, user.id, "finished_reading", null);
 
-        List<Log> finished = logService.listLogs(book.id, user.id, "finished_reading", null, null);
+        List<LogDto> finished = logService.listLogs(book.id, user.id, "finished_reading", null, null);
 
         assertEquals(1, finished.size());
-        assertEquals(Action.FINISHED_READING, finished.get(0).action);
+        assertEquals("finished_reading", finished.get(0).action());
     }
 
     @Test
@@ -72,14 +73,14 @@ class LogServiceTest {
         var book = TestDataUtil.persistBook("Original", "Author", "2020");
         var newBook = TestDataUtil.persistBook("Updated", "Author", "2021");
 
-        Log log = logService.createLog(book.id, user.id, "started_reading", null);
+        LogDto log = logService.createLog(book.id, user.id, "started_reading", null);
         var newTimestamp = LocalDateTime.now().minusDays(1);
 
-        Log updated = logService.updateLog(log.id, newBook.id, null, "finished_reading", newTimestamp);
+        LogDto updated = logService.updateLog(log.id(), newBook.id, null, "finished_reading", newTimestamp);
 
-        assertEquals(Action.FINISHED_READING, updated.action);
-        assertEquals(newTimestamp, updated.timestamp);
-        assertEquals(newBook.id, updated.book.id);
+        assertEquals("finished_reading", updated.action());
+        assertEquals(newTimestamp, updated.timestamp());
+        assertEquals(newBook.id, updated.book().id());
     }
 
     @Test
@@ -89,10 +90,10 @@ class LogServiceTest {
         var user = TestDataUtil.persistUser("reader");
         var book = TestDataUtil.persistBook("Delete", "Author", "2023");
 
-        Log log = logService.createLog(book.id, user.id, "started_reading", null);
-        logService.deleteLog(log.id);
+        LogDto log = logService.createLog(book.id, user.id, "started_reading", null);
+        logService.deleteLog(log.id());
 
-        assertNull(Log.findById(log.id));
+        assertNull(Log.findById(log.id()));
     }
 
     @Test
@@ -106,8 +107,8 @@ class LogServiceTest {
         logService.createLog(book.id, user.id, "finished_reading", null);
         logService.createLog(book.id, user.id, "started_reading", null);
 
-        List<Log> firstPage = logService.listLogs(book.id, user.id, null, 1, 2);
-        List<Log> secondPage = logService.listLogs(book.id, user.id, null, 2, 2);
+        List<LogDto> firstPage = logService.listLogs(book.id, user.id, null, 1, 2);
+        List<LogDto> secondPage = logService.listLogs(book.id, user.id, null, 2, 2);
 
         assertEquals(2, firstPage.size());
         assertEquals(1, secondPage.size());

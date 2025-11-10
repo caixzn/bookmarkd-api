@@ -10,6 +10,7 @@ import bookmarkd.api.entity.Book;
 import bookmarkd.api.entity.Log;
 import bookmarkd.api.entity.Log.Action;
 import bookmarkd.api.entity.User;
+import bookmarkd.api.resource.dto.LogDto;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import jakarta.transaction.Transactional;
@@ -23,7 +24,7 @@ public class LogService {
 	private static final int DEFAULT_PAGE_SIZE = 20;
 	private static final int MAX_PAGE_SIZE = 50;
 
-	public Log createLog(Long bookId, Long userId, String actionValue, LocalDateTime timestamp) {
+	public LogDto createLog(Long bookId, Long userId, String actionValue, LocalDateTime timestamp) {
 		if (bookId == null) {
 			throw new BadRequestException("bookId is required");
 		}
@@ -53,10 +54,10 @@ public class LogService {
 		log.timestamp = timestamp != null ? timestamp : LocalDateTime.now();
 		log.persist();
 
-		return log;
+		return LogDto.from(log);
 	}
 
-	public List<Log> listLogs(Long bookId, Long userId, String actionValue, Integer page, Integer size) {
+	public List<LogDto> listLogs(Long bookId, Long userId, String actionValue, Integer page, Integer size) {
 		// Assemble a flexible JPQL query based on the provided filters.
 		var query = new StringBuilder();
 		Map<String, Object> parameters = new HashMap<>();
@@ -82,11 +83,15 @@ public class LogService {
 			panacheQuery = Log.find(query.toString(), parameters);
 		}
 
-		return panacheQuery.page(resolvePage(page, size)).list();
+		return panacheQuery.page(resolvePage(page, size))
+				.list()
+				.stream()
+				.map(LogDto::from)
+				.toList();
 	}
 
 	@Transactional
-	public Log updateLog(Long logId, Long bookId, Long userId, String actionValue, LocalDateTime timestamp) {
+	public LogDto updateLog(Long logId, Long bookId, Long userId, String actionValue, LocalDateTime timestamp) {
 		if (logId == null) {
 			throw new BadRequestException("logId is required");
 		}
@@ -120,7 +125,7 @@ public class LogService {
 			log.timestamp = timestamp;
 		}
 
-		return log;
+		return LogDto.from(log);
 	}
 
 	@Transactional

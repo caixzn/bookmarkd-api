@@ -10,6 +10,7 @@ import bookmarkd.api.entity.Book;
 import bookmarkd.api.entity.Review;
 import bookmarkd.api.entity.Review.Rating;
 import bookmarkd.api.entity.User;
+import bookmarkd.api.resource.dto.ReviewDto;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -23,7 +24,7 @@ public class ReviewService {
 	private static final int DEFAULT_PAGE_SIZE = 20;
 	private static final int MAX_PAGE_SIZE = 50;
 
-	public Review createReview(Long bookId, Long authorId, String ratingValue, String content, LocalDateTime createdAt) {
+	public ReviewDto createReview(Long bookId, Long authorId, String ratingValue, String content, LocalDateTime createdAt) {
 		if (bookId == null) {
 			throw new BadRequestException("bookId is required");
 		}
@@ -54,10 +55,10 @@ public class ReviewService {
 		review.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
 		review.persist();
 
-		return review;
+		return ReviewDto.from(review);
 	}
 
-	public List<Review> listReviews(Long bookId, Long authorId, String ratingValue, Integer page, Integer size) {
+	public List<ReviewDto> listReviews(Long bookId, Long authorId, String ratingValue, Integer page, Integer size) {
 		// Assemble a flexible JPQL query based on the provided filters.
 		var query = new StringBuilder();
 		Map<String, Object> parameters = new HashMap<>();
@@ -83,11 +84,15 @@ public class ReviewService {
 			panacheQuery = Review.find(query.toString(), parameters);
 		}
 
-		return panacheQuery.page(resolvePage(page, size)).list();
+		return panacheQuery.page(resolvePage(page, size))
+				.list()
+				.stream()
+				.map(ReviewDto::from)
+				.toList();
 	}
 
 	@Transactional
-	public Review likeReview(Long reviewId, Long userId) {
+	public ReviewDto likeReview(Long reviewId, Long userId) {
 		if (reviewId == null) {
 			throw new BadRequestException("reviewId is required");
 		}
@@ -111,11 +116,11 @@ public class ReviewService {
 			review.likedBy.add(user);
 		}
 
-		return review;
+		return ReviewDto.from(review);
 	}
 
 	@Transactional
-	public Review unlikeReview(Long reviewId, Long userId) {
+	public ReviewDto unlikeReview(Long reviewId, Long userId) {
 		if (reviewId == null) {
 			throw new BadRequestException("reviewId is required");
 		}
@@ -134,7 +139,7 @@ public class ReviewService {
 		}
 
 		review.likedBy.removeIf(existing -> existing.id != null && existing.id.equals(user.id));
-		return review;
+		return ReviewDto.from(review);
 	}
 
 	private void appendPredicate(StringBuilder query, String predicate) {

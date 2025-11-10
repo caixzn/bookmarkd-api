@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 
 import bookmarkd.api.entity.User;
+import bookmarkd.api.resource.dto.UserDto;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
@@ -17,7 +18,7 @@ public class UserService {
     private static final int DEFAULT_PAGE_SIZE = 20;
     private static final int MAX_PAGE_SIZE = 50;
 
-	public User createUser(String username) {
+	public UserDto createUser(String username) {
 		var sanitizedUsername = sanitizeUsername(username);
 
 		var existing = (User) User.find("LOWER(username) = ?1", sanitizedUsername.toLowerCase(Locale.ROOT)).firstResult();
@@ -28,10 +29,10 @@ public class UserService {
 		var user = new User();
 		user.username = sanitizedUsername;
 		user.persist();
-		return user;
+		return UserDto.from(user);
 	}
 
-	public List<User> listUsers(String username, Integer page, Integer size) {
+	public List<UserDto> listUsers(String username, Integer page, Integer size) {
 		PanacheQuery<User> query;
 		if (username == null || username.isBlank()) {
 			query = User.findAll(Sort.by("username"));
@@ -39,18 +40,22 @@ public class UserService {
 			var normalized = "%" + username.trim().toLowerCase(Locale.ROOT) + "%";
 			query = User.find("LOWER(username) like ?1", Sort.by("username"), normalized);
 		}
-		return query.page(resolvePage(page, size)).list();
+		return query.page(resolvePage(page, size))
+				.list()
+				.stream()
+				.map(UserDto::from)
+				.toList();
 	}
 
-	public User getUser(Long id) {
+	public UserDto getUser(Long id) {
 		User user = User.findById(id);
 		if (user == null) {
 			throw new NotFoundException("User not found for id: " + id);
 		}
-		return user;
+		return UserDto.from(user);
 	}
 
-	public User updateUser(Long id, String username) {
+	public UserDto updateUser(Long id, String username) {
 		User user = User.findById(id);
 		if (user == null) {
 			throw new NotFoundException("User not found for id: " + id);
@@ -64,7 +69,7 @@ public class UserService {
 		}
 
 		user.username = sanitizedUsername;
-		return user;
+		return UserDto.from(user);
 	}
 
 	private String sanitizeUsername(String username) {

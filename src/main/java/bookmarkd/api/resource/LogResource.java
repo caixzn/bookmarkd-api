@@ -3,7 +3,7 @@ package bookmarkd.api.resource;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import bookmarkd.api.entity.Log;
+import bookmarkd.api.resource.dto.LogDto;
 import bookmarkd.api.service.LogService;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -34,12 +34,12 @@ public class LogResource {
         if (request == null) {
             throw new BadRequestException("Request body is required");
         }
-        Log log = logService.createLog(request.bookId(), request.userId(), request.action(), request.timestamp());
+        LogDto log = logService.createLog(request.bookId(), request.userId(), request.action(), request.timestamp());
         return Response.status(Response.Status.CREATED).entity(log).build();
     }
 
     @GET
-    public List<Log> listLogs(@QueryParam("bookId") Long bookId,
+    public List<LogDto> listLogs(@QueryParam("bookId") Long bookId,
             @QueryParam("userId") Long userId,
             @QueryParam("action") String actionValue,
             @QueryParam("page") Integer page,
@@ -50,7 +50,7 @@ public class LogResource {
     @PUT
     @Path("/{id}")
     @Transactional
-    public Log updateLog(@PathParam("id") Long logId, UpdateLogRequest request) {
+    public LogDto updateLog(@PathParam("id") Long logId, UpdateLogRequest request) {
         if (request == null) {
             throw new BadRequestException("Request body is required");
         }
