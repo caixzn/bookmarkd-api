@@ -21,4 +21,9 @@ public class BookResource {
         return bookService.searchBooks(query, page, limit);
     }
 
+    @GET
+    @Path("/key")
+    public OpenLibraryDoc getBookByKey(@QueryParam("key") String key) {
+        return bookService.getBookByKey(key);
+    }
 }

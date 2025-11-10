@@ -23,7 +23,8 @@ public interface OpenLibraryClient {
             String key,
             String title,
             @JsonProperty("author_name") List<String> authorName,
-            @JsonProperty("first_publish_year") Integer firstPublishYear) {
+            @JsonProperty("first_publish_year") Integer firstPublishYear,
+            @JsonProperty("author_key") List<String> authorKeys) {
         // a lot of fields are omitted here
     }
 
@@ -33,4 +34,8 @@ public interface OpenLibraryClient {
             @QueryParam("page") Integer page,
             @QueryParam("limit") Integer limit,
             @QueryParam("fields") String fields);
+
+    @GET
+    @Path("{key}.json")
+    OpenLibraryDoc getBookByKey(@PathParam("key") String key);
 }

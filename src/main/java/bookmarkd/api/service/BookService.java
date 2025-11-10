@@ -8,6 +8,7 @@ import bookmarkd.api.client.OpenLibraryClient;
 import bookmarkd.api.client.OpenLibraryClient.OpenLibraryDoc;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.NotFoundException;
 
 @ApplicationScoped
 public class BookService {
@@ -25,5 +26,15 @@ public class BookService {
 
         var response = openLibraryClient.search(query, page, limit, "key,title,author_name,first_publish_year");
         return response.docs();
+    }
+
+    public OpenLibraryDoc getBookByKey(String key) {
+        var book = openLibraryClient.getBookByKey(key);
+        
+        if (book == null) {
+            throw new NotFoundException("Book not found for key: " + key);
+        }
+        
+        return book;
     }
 }

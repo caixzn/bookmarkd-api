@@ -7,3 +7,11 @@ quarkus:
   rest-client:
     open-library-api:
       url: https://openlibrary.org
+  datasource:
+    db-kind: h2
+    jdbc:
+      url: jdbc:h2:file:./db.h2
+  hibernate-orm:
+    schema-management:
+      strategy: update
+
