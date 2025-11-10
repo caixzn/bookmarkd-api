@@ -1,5 +1,6 @@
 package bookmarkd.api.client;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
@@ -15,16 +16,16 @@ public interface OpenLibraryClient {
     public record OpenLibrarySearchResponse(
             Integer numFound,
             Integer start,
-            List<OpenLibraryDoc> docs) {
+            List<OpenLibraryDoc> docs) implements Serializable {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record OpenLibraryDoc(
+        public record OpenLibraryDoc(
             String key,
             String title,
             @JsonProperty("author_name") List<String> authorName,
             @JsonProperty("first_publish_year") Integer firstPublishYear,
-            @JsonProperty("author_key") List<String> authorKeys) {
+                        @JsonProperty("author_key") List<String> authorKeys) implements Serializable {
         // a lot of fields are omitted here
     }
 

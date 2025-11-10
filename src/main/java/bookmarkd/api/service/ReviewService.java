@@ -11,6 +11,7 @@ import bookmarkd.api.entity.Review;
 import bookmarkd.api.entity.Review.Rating;
 import bookmarkd.api.entity.User;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 
@@ -75,6 +76,57 @@ public class ReviewService {
 		}
 
 		return Review.find(query.toString(), parameters).list();
+	}
+
+	@Transactional
+	public Review likeReview(Long reviewId, Long userId) {
+		if (reviewId == null) {
+			throw new BadRequestException("reviewId is required");
+		}
+		if (userId == null) {
+			throw new BadRequestException("userId is required");
+		}
+
+		Review review = Review.findById(reviewId);
+		if (review == null) {
+			throw new NotFoundException("Review not found for id: " + reviewId);
+		}
+
+		User user = User.findById(userId);
+		if (user == null) {
+			throw new NotFoundException("User not found for id: " + userId);
+		}
+
+		boolean alreadyLiked = review.likedBy.stream()
+				.anyMatch(existing -> existing.id != null && existing.id.equals(user.id));
+		if (!alreadyLiked) {
+			review.likedBy.add(user);
+		}
+
+		return review;
+	}
+
+	@Transactional
+	public Review unlikeReview(Long reviewId, Long userId) {
+		if (reviewId == null) {
+			throw new BadRequestException("reviewId is required");
+		}
+		if (userId == null) {
+			throw new BadRequestException("userId is required");
+		}
+
+		Review review = Review.findById(reviewId);
+		if (review == null) {
+			throw new NotFoundException("Review not found for id: " + reviewId);
+		}
+
+		User user = User.findById(userId);
+		if (user == null) {
+			throw new NotFoundException("User not found for id: " + userId);
+		}
+
+		review.likedBy.removeIf(existing -> existing.id != null && existing.id.equals(user.id));
+		return review;
 	}
 
 	private void appendPredicate(StringBuilder query, String predicate) {

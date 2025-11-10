@@ -9,9 +9,11 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
@@ -43,7 +45,30 @@ public class ReviewResource {
         return reviewService.listReviews(bookId, authorId, ratingValue);
     }
 
+    @POST
+    @Path("/{id}/likes")
+    @Transactional
+    public Review likeReview(@PathParam("id") Long reviewId, LikeReviewRequest request) {
+        if (request == null) {
+            throw new BadRequestException("Request body is required");
+        }
+        if (request.userId() == null) {
+            throw new BadRequestException("userId is required");
+        }
+        return reviewService.likeReview(reviewId, request.userId());
+    }
+
+    @DELETE
+    @Path("/{id}/likes/{userId}")
+    @Transactional
+    public Review unlikeReview(@PathParam("id") Long reviewId, @PathParam("userId") Long userId) {
+        return reviewService.unlikeReview(reviewId, userId);
+    }
+
     public record CreateReviewRequest(Long bookId, Long authorId, String rating, String content,
             LocalDateTime createdAt) {
+    }
+
+    public record LikeReviewRequest(Long userId) {
     }
 }
